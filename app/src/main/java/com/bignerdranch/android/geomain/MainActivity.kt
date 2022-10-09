@@ -2,11 +2,14 @@ package com.bignerdranch.android.geomain
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+
+private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,6 +35,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //Записываем в логи создание MainActivity
+        Log.d(TAG, "onCreate(Bundle?) called")
+
         setContentView(R.layout.activity_main)
 
         // Достаем виджеты по их id, описанному в xml
@@ -77,6 +84,37 @@ class MainActivity : AppCompatActivity() {
         }
 
        updateQuestion()
+    }
+
+    //Переопределение функций обратного вызова жизненного цикла Activity
+    //Запускает видимость для пользователя
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart() called")
+    }
+
+    //Запускает возобновление
+    override fun onResume(){
+        super.onResume()
+        Log.d(TAG, "onResume() called")
+    }
+
+    //Приостанавливает приложение
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause() called")
+    }
+
+    //Останавливает приложение
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop() called")
+    }
+
+    //Уничтожает приложение
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy() called")
     }
 
     //Достаем idx актуального вопроса и вставляем его в виджет
