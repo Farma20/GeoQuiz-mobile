@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 
@@ -13,7 +14,8 @@ class MainActivity : AppCompatActivity() {
     // lateinit обещает JVM, что мы инициализируем эту переменную
     private lateinit var trueButton: Button
     private lateinit var falseButton: Button
-    private lateinit var nextButton: Button
+    private lateinit var nextButton: ImageButton
+    private lateinit var prevButton: ImageButton
     private lateinit var questionTextView: TextView
 
     //Создаем неизменяемый список с вопросами и ответами
@@ -36,7 +38,9 @@ class MainActivity : AppCompatActivity() {
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
+        prevButton = findViewById(R.id.previous_button)
         questionTextView = findViewById(R.id.question_text_view)
+
 
         //Добавление слушателей на кнопки
         trueButton.setOnClickListener{view: View ->
@@ -51,6 +55,22 @@ class MainActivity : AppCompatActivity() {
 
         nextButton.setOnClickListener { view: View ->
             //Изменяеи idx при нажатии на next
+            currentIndex = (currentIndex + 1) % questionBank.size
+
+            updateQuestion()
+        }
+
+        prevButton.setOnClickListener { view: View ->
+            currentIndex = currentIndex - 1
+            if(currentIndex < 0){
+                currentIndex = questionBank.size - 1
+            }
+
+            updateQuestion()
+        }
+
+        //Задание 2.1 Добавить слушателя на TextView
+        questionTextView.setOnClickListener { view: View ->
             currentIndex = (currentIndex + 1) % questionBank.size
 
             updateQuestion()
