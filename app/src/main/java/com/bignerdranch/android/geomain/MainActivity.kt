@@ -20,6 +20,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var nextButton: ImageButton
     private lateinit var prevButton: ImageButton
     private lateinit var questionTextView: TextView
+    private var selectQuestion: Boolean = false
+    private var right_answers: Float = 0.0f
 
     //Создаем неизменяемый список с вопросами и ответами
     private val questionBank = listOf(
@@ -62,7 +64,20 @@ class MainActivity : AppCompatActivity() {
 
         nextButton.setOnClickListener { view: View ->
             //Изменяеи idx при нажатии на next
+            if(currentIndex == questionBank.size-1){
+                val res: Float = (right_answers/questionBank.size)*100.0f
+
+                Toast.makeText(
+                    this,
+                    "the number of correct answers is $res%",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
             currentIndex = (currentIndex + 1) % questionBank.size
+
+
+            selectQuestion = false
 
             updateQuestion()
         }
@@ -79,6 +94,8 @@ class MainActivity : AppCompatActivity() {
         //Задание 2.1 Добавить слушателя на TextView
         questionTextView.setOnClickListener { view: View ->
             currentIndex = (currentIndex + 1) % questionBank.size
+
+            selectQuestion = false
 
             updateQuestion()
         }
@@ -125,18 +142,31 @@ class MainActivity : AppCompatActivity() {
 
     //Функция проверки вопроса
     private fun checkAnswer(userAnswer: Boolean){
-        val correctAnswer = questionBank[currentIndex].answer
+        if(!selectQuestion) {
+            val correctAnswer = questionBank[currentIndex].answer
+            val messageResId:Int
+            selectQuestion = !selectQuestion
 
-        val messageResId = if(userAnswer == correctAnswer){
-            R.string.correct_toast
-        } else{
-            R.string.incorrect_toast
+            if (userAnswer == correctAnswer) {
+                right_answers +=  1.0f
+                messageResId = R.string.correct_toast
+            } else {
+                messageResId = R.string.incorrect_toast
+            }
+
+            Toast.makeText(
+                this,
+                messageResId,
+                Toast.LENGTH_SHORT
+            ).show()
+        }else{
+            val messageResId = R.string.select_question
+
+            Toast.makeText(
+                this,
+                messageResId,
+                Toast.LENGTH_SHORT
+            ).show()
         }
-
-        Toast.makeText(
-            this,
-            messageResId,
-            Toast.LENGTH_SHORT
-        ).show()
     }
 }
