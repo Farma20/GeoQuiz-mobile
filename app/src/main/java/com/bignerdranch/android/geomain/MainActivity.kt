@@ -1,13 +1,16 @@
 package com.bignerdranch.android.geomain
 
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewOutlineProvider
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 
 private const val TAG = "MainActivity"
 
@@ -23,16 +26,6 @@ class MainActivity : AppCompatActivity() {
     private var selectQuestion: Boolean = false
     private var right_answers: Float = 0.0f
 
-    //Создаем неизменяемый список с вопросами и ответами
-    private val questionBank = listOf(
-        Question(R.string.question_australia, true),
-        Question(R.string.question_oceans, true),
-        Question(R.string.question_mideast, false),
-        Question(R.string.question_africa, false),
-        Question(R.string.question_americas, true),
-        Question(R.string.question_asia, true)
-    )
-    private var currentIndex = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +35,11 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate(Bundle?) called")
 
         setContentView(R.layout.activity_main)
+
+        //подключаем ViewModel к проекту для хранения информации
+        // при уничтожении activity
+        val provider: ViewModelProvider = ViewModelProvider(this)
+        val quizViewModel = provider.get(QuizViewModel::class.java)
 
         // Достаем виджеты по их id, описанному в xml
         trueButton = findViewById(R.id.true_button)
