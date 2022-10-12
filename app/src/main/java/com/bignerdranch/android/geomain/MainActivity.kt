@@ -10,9 +10,10 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
+
 
 private const val TAG = "MainActivity"
+private const val KEY_INDEX = "index"
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,7 +27,10 @@ class MainActivity : AppCompatActivity() {
     private var selectQuestion: Boolean = false
     private var right_answers: Float = 0.0f
 
-
+    //Ленивая инициализация quizViewModel
+    private val quizViewModel: QuizViewModel by lazy {
+        ViewModelProvider(this).get(QuizViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +42,6 @@ class MainActivity : AppCompatActivity() {
 
         //подключаем ViewModel к проекту для хранения информации
         // при уничтожении activity
-        val provider: ViewModelProvider = ViewModelProvider(this)
-        val quizViewModel = provider.get(QuizViewModel::class.java)
 
         // Достаем виджеты по их id, описанному в xml
         trueButton = findViewById(R.id.true_button)
@@ -48,6 +50,8 @@ class MainActivity : AppCompatActivity() {
         prevButton = findViewById(R.id.previous_button)
         questionTextView = findViewById(R.id.question_text_view)
 
+        val currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
+        quizViewModel.currentIndex = currentIndex
 
         //Добавление слушателей на кнопки
         trueButton.setOnClickListener{view: View ->
@@ -62,18 +66,7 @@ class MainActivity : AppCompatActivity() {
 
         nextButton.setOnClickListener { view: View ->
             //Изменяеи idx при нажатии на next
-            if(currentIndex == questionBank.size-1){
-                val res: Float = (right_answers/questionBank.size)*100.0f
-
-                Toast.makeText(
-                    this,
-                    "the number of correct answers is $res%",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-
-            currentIndex = (currentIndex + 1) % questionBank.size
-
+            quizViewModel.moveToNext()
 
             selectQuestion = false
 
@@ -81,24 +74,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         prevButton.setOnClickListener { view: View ->
-            currentIndex = currentIndex - 1
-            if(currentIndex < 0){
-                currentIndex = questionBank.size - 1
-            }
 
-            updateQuestion()
-        }
-
-        //Задание 2.1 Добавить слушателя на TextView
-        questionTextView.setOnClickListener { view: View ->
-            currentIndex = (currentIndex + 1) % questionBank.size
-
-            selectQuestion = false
-
+            quizViewModel.moveToPrevious()
             updateQuestion()
         }
 
        updateQuestion()
+    }
+
+    //Реализация функии сохраненя данных при разрушении activity
+    override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        super.onSaveInstanceState(savedInstanceState)
+
+        Log.i(TAG, "onSaveInstanceState")
+        savedInstanceState.putInt(KEY_INDEX, quizViewModel.currentIndex)
     }
 
     //Переопределение функций обратного вызова жизненного цикла Activity
@@ -134,37 +123,26 @@ class MainActivity : AppCompatActivity() {
 
     //Достаем idx актуального вопроса и вставляем его в виджет
     private fun updateQuestion(){
-        val questionTextResId = questionBank[currentIndex].textResId
-        questionTextView.setText(questionTextResId)
+        questionTextView.setText(quizViewModel.currentQuestionText)
     }
 
     //Функция проверки вопроса
     private fun checkAnswer(userAnswer: Boolean){
-        if(!selectQuestion) {
-            val correctAnswer = questionBank[currentIndex].answer
-            val messageResId:Int
-            selectQuestion = !selectQuestion
+        val correctAnswer = quizViewModel.currentQuestionAnswer
+        val messageResId:Int
+        selectQuestion = !selectQuestion
 
-            if (userAnswer == correctAnswer) {
-                right_answers +=  1.0f
-                messageResId = R.string.correct_toast
-            } else {
-                messageResId = R.string.incorrect_toast
-            }
-
-            Toast.makeText(
-                this,
-                messageResId,
-                Toast.LENGTH_SHORT
-            ).show()
-        }else{
-            val messageResId = R.string.select_question
-
-            Toast.makeText(
-                this,
-                messageResId,
-                Toast.LENGTH_SHORT
-            ).show()
+        if (userAnswer == correctAnswer) {
+            right_answers +=  1.0f
+            messageResId = R.string.correct_toast
+        } else {
+            messageResId = R.string.incorrect_toast
         }
+
+        Toast.makeText(
+            this,
+            messageResId,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }
