@@ -1,5 +1,7 @@
 package com.bignerdranch.android.geomain
 
+import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -17,16 +19,19 @@ private const val KEY_INDEX = "index"
 
 class MainActivity : AppCompatActivity() {
 
-    // Создание переменных, в которых будуд лежать кнопки
+    // Создание переменных, в которых будут лежать кнопки
     // lateinit обещает JVM, что мы инициализируем эту переменную
     private lateinit var trueButton: Button
     private lateinit var falseButton: Button
+    private lateinit var cheatButton:Button
     private lateinit var nextButton: ImageButton
     private lateinit var prevButton: ImageButton
     private lateinit var questionTextView: TextView
     private var selectQuestion: Boolean = false
     private var right_answers: Float = 0.0f
 
+    //подключаем ViewModel к проекту для хранения информации
+    // при уничтожении activity
     //Ленивая инициализация quizViewModel
     private val quizViewModel: QuizViewModel by lazy {
         ViewModelProvider(this).get(QuizViewModel::class.java)
@@ -40,12 +45,10 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        //подключаем ViewModel к проекту для хранения информации
-        // при уничтожении activity
-
         // Достаем виджеты по их id, описанному в xml
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
+        cheatButton = findViewById(R.id.cheat_button)
         nextButton = findViewById(R.id.next_button)
         prevButton = findViewById(R.id.previous_button)
         questionTextView = findViewById(R.id.question_text_view)
@@ -57,7 +60,6 @@ class MainActivity : AppCompatActivity() {
         trueButton.setOnClickListener{view: View ->
             //Создаем всплывающее окно с текстом (Toast) при нажатии
             checkAnswer(true)
-
         }
 
         falseButton.setOnClickListener{ view: View ->
@@ -67,16 +69,22 @@ class MainActivity : AppCompatActivity() {
         nextButton.setOnClickListener { view: View ->
             //Изменяеи idx при нажатии на next
             quizViewModel.moveToNext()
-
             selectQuestion = false
-
             updateQuestion()
         }
 
         prevButton.setOnClickListener { view: View ->
-
             quizViewModel.moveToPrevious()
             updateQuestion()
+        }
+
+        cheatButton.setOnClickListener { view:View ->
+            //Создаем новую activity через эту
+            //создаем интент, где мы говорим ОС какую activity открывать
+            var intent = Intent(this, CheatActivity::class.java)
+
+            //Запускаем новую activity
+            startActivity(intent)
         }
 
        updateQuestion()
@@ -123,6 +131,8 @@ class MainActivity : AppCompatActivity() {
 
     //Достаем idx актуального вопроса и вставляем его в виджет
     private fun updateQuestion(){
+//        Log.d(TAG, "exception", Exception())
+
         questionTextView.setText(quizViewModel.currentQuestionText)
     }
 
