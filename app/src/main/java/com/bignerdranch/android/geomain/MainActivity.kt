@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 
 private const val TAG = "MainActivity"
 private const val KEY_INDEX = "index"
+private const val REQUEST_CODE_CHEAT = 0;
 
 class MainActivity : AppCompatActivity() {
 
@@ -81,10 +82,11 @@ class MainActivity : AppCompatActivity() {
         cheatButton.setOnClickListener { view:View ->
             //Создаем новую activity через эту
             //создаем интент, где мы говорим ОС какую activity открывать
-            var intent = Intent(this, CheatActivity::class.java)
+            val answerIsTrue = quizViewModel.currentQuestionAnswer
+            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
 
             //Запускаем новую activity
-            startActivity(intent)
+            startActivityForResult(intent, REQUEST_CODE_CHEAT)
         }
 
        updateQuestion()
@@ -96,6 +98,22 @@ class MainActivity : AppCompatActivity() {
 
         Log.i(TAG, "onSaveInstanceState")
         savedInstanceState.putInt(KEY_INDEX, quizViewModel.currentIndex)
+    }
+
+    //Переопределение функции, которая срабатывает после того,
+    // как дочерняя активити перестает существовать
+    override fun onActivityResult(requestCode:Int, resultCode:Int, data: Intent?){
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(resultCode != RESULT_OK)
+            return
+
+        if(requestCode == REQUEST_CODE_CHEAT){
+            val isCheats = data?.getBooleanExtra(
+                "com.bignerdranch.android.geoquiz.answer_shown",
+                false) ?: false
+            quizViewModel.cheats(isCheats)
+        }
     }
 
     //Переопределение функций обратного вызова жизненного цикла Activity
@@ -142,11 +160,10 @@ class MainActivity : AppCompatActivity() {
         val messageResId:Int
         selectQuestion = !selectQuestion
 
-        if (userAnswer == correctAnswer) {
-            right_answers +=  1.0f
-            messageResId = R.string.correct_toast
-        } else {
-            messageResId = R.string.incorrect_toast
+        messageResId = when{
+            quizViewModel.currentQuestionCheats -> R.string.judgment_toast
+            userAnswer == correctAnswer -> R.string.correct_toast
+            else -> R.string.incorrect_toast
         }
 
         Toast.makeText(

@@ -18,6 +18,11 @@ class QuizViewModel: ViewModel() {
     var currentIndex = 0
     val currentQuestionAnswer: Boolean get() = questionBank[currentIndex].answer
     val currentQuestionText: Int get() = questionBank[currentIndex].textResId
+    val currentQuestionCheats: Boolean get() = questionBank[currentIndex].cheat
+
+    fun cheats(isCheats:Boolean){
+        questionBank[currentIndex].cheat = isCheats
+    }
 
     fun moveToNext(){
         currentIndex = (currentIndex + 1) % questionBank.size
