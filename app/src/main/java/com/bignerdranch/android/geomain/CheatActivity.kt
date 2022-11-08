@@ -1,8 +1,10 @@
 package com.bignerdranch.android.geomain
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -18,9 +20,11 @@ private var cheats: Boolean = false
 class CheatActivity : AppCompatActivity() {
 
     private lateinit var answerTextView: TextView
+    private lateinit var apiLvlView: TextView
     private lateinit var answerShowButton: Button
     private var answerIsTrue = false
 
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cheat)
@@ -31,7 +35,12 @@ class CheatActivity : AppCompatActivity() {
         answerIsTrue = intent.getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false)
 
         answerTextView = findViewById(R.id.answer_text_view)
+        apiLvlView = findViewById(R.id.api_lvl_view)
         answerShowButton = findViewById(R.id.show_answer_button)
+
+        //добавление актуальной версии api
+        val apiLvl: CharSequence = "API Level " + Build.VERSION.SDK_INT
+        apiLvlView.append(apiLvl)
 
         answerShowButton.setOnClickListener {
             cheats = true

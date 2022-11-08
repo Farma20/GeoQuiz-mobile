@@ -1,7 +1,10 @@
 package com.bignerdranch.android.geomain
 
+import android.annotation.SuppressLint
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -38,6 +41,7 @@ class MainActivity : AppCompatActivity() {
         ViewModelProvider(this).get(QuizViewModel::class.java)
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -74,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             updateQuestion()
         }
 
-        prevButton.setOnClickListener { view: View ->
+        prevButton.setOnClickListener { view:View ->
             quizViewModel.moveToPrevious()
             updateQuestion()
         }
@@ -85,8 +89,19 @@ class MainActivity : AppCompatActivity() {
             val answerIsTrue = quizViewModel.currentQuestionAnswer
             val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
 
-            //Запускаем новую activity
-            startActivityForResult(intent, REQUEST_CODE_CHEAT)
+            //решения проблемы совместимости вызова функции для более высокого уровня api
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+
+                //создание анимации новой активити в виде опции запуска
+                val options = ActivityOptions.makeClipRevealAnimation(
+                    view, 0, 0, view.width, view.height)
+                //Запускаем новую activity
+                startActivityForResult(intent, REQUEST_CODE_CHEAT, options.toBundle())
+            }
+            else{
+                startActivityForResult(intent, REQUEST_CODE_CHEAT)
+            }
+
         }
 
        updateQuestion()
