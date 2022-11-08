@@ -29,10 +29,14 @@
         android:text="@string/show_answer_button"
         />
     <TextView
+        android:id="@+id/cheats_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="24dp" />
+    <TextView
         android:id="@+id/api_lvl_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="24dp"
-        />
+        android:padding="24dp" />
 
 </LinearLayout>

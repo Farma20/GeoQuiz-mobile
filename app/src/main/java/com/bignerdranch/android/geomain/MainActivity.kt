@@ -87,7 +87,11 @@ class MainActivity : AppCompatActivity() {
             //Создаем новую activity через эту
             //создаем интент, где мы говорим ОС какую activity открывать
             val answerIsTrue = quizViewModel.currentQuestionAnswer
-            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
+            val intent = CheatActivity.newIntent(
+                this@MainActivity,
+                answerIsTrue,
+                quizViewModel.cheatsCount,
+                quizViewModel.currentQuestionCheats)
 
             //решения проблемы совместимости вызова функции для более высокого уровня api
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
